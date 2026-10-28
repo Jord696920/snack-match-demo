@@ -4967,6 +4967,7 @@
   }
   function render() {
     $('#view').innerHTML = view === 'picks' ? picks() : view === 'menu' ? menu() : discover();
+    $('#view').insertAdjacentHTML('beforeend', '<div class="section-actions"><button class="button secondary small reset-picks" data-action="reset">Reset picks</button></div>');
     $('#like-count').textContent = String(likes().length);
     $('#undo').disabled = !state.history.length;
     document.querySelectorAll('.bottom-nav button').forEach(button => { button.classList.toggle('active', button.dataset.view === view); button.setAttribute('aria-current', button.dataset.view === view ? 'page' : 'false'); });
@@ -5031,6 +5032,10 @@
     const remove = event.target.closest('[data-remove]'); if (remove) { state.decisions[remove.dataset.remove] = 'no'; save(); render(); return; }
     const action = event.target.closest('[data-action]'); if (!action) return;
     switch (action.dataset.action) {
+      case 'reset':
+        if (!window.confirm('Reset all picks? This clears your yes/no choices, progress and shopping ticks on this browser. Download your picks first if you want a backup.')) return;
+        state = C.makeState(); menuTab = 'menu'; busy = false;
+        save(); navigate('discover'); toast('Picks cleared. Ready to start again.'); return;
       case 'continue': return resume();
       case 'pause': state.paused = true; save(); return navigate('picks');
       case 'share': return shareResults();
